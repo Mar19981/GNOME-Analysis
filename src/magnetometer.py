@@ -1,11 +1,8 @@
 from typing import NamedTuple
 
-
 import scipy.constants as const
 
-
 import numpy as np
-
 
 import math
 
@@ -24,13 +21,6 @@ DOMAIN_WALL_SPEED = const.speed_of_light
 
 
 
-#1 degree in radians
-
-
-DEGREE_RAD = const.pi / 180.0
-
-
-
 #WGS-84 Axes
 
 
@@ -39,7 +29,7 @@ SEMI_MAJOR_AXIS = 6.378137e6
 
 SEMI_MINOR_AXIS = 6.356752314245e6
 
-E
+E = math.sqrt(SEMI_MAJOR_AXIS * SEMI_MAJOR_AXIS - SEMI_MINOR_AXIS * SEMI_MINOR_AXIS) / SEMI_MAJOR_AXIS
 
 
 class Coordinates(NamedTuple):
@@ -48,7 +38,6 @@ class Coordinates(NamedTuple):
 
     h: float
     alt: float
-
     az: float
 
 
@@ -63,8 +52,8 @@ class Position(NamedTuple):
 
 
 class Signal(NamedTuple):
+    
     time: float
-
     value: float
 
 
@@ -76,6 +65,8 @@ class Magnetometer:
 
         self.__name = city
 
+        self.__position = np.empty(3)
+        
         self.__LLH2ECEF(coordinates)
         
 
@@ -101,22 +92,19 @@ class Magnetometer:
         
 
 
-        self.__x = (n + coordinates.h) * cosphi * coslambda
+        self.__position[0] = (n + coordinates.h) * cosphi * coslambda
 
 
-        self.__y = (n + coordinates.h) * cosphi * sinlambda
+        self.__position[1] = (n + coordinates.h) * cosphi * sinlambda
 
 
-        self.__z = (n * (1.0 - E * E) + coordinates.h) * sinphi
+        self.__position[2] = (n * (1.0 - E * E) + coordinates.h) * sinphi
         
     def __str__(self):
-
-
-        return f"{self.__name} -  Noise: {self.__noise}pT Location: [{self.__x}, {self.__y}, {self.__z}]m"
+        return f"{self.__name} -  Noise: {self.__noise}pT Location: [{self.__position[0]}, {self.__position[1]}, {self.__position[2]}]m"
+    
     def __repr__(self):
-
-
-        return f"Name: {self.__name} - Noise: {self.__noise} - x: {self.__x} - y: {self.__y} - z: {self.__z}"
+        return f"Name: {self.__name} - Noise: {self.__noise} - x: {self.__position[0]} - y: {self.__position[1]} - z: {self.__position[2]}"
     
         
     
