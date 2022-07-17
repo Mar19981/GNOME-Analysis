@@ -1,5 +1,5 @@
-import zipfile, os, sys
-import numpy as np
+import zipfile
+import sys
 from magnetometer import Signal, Magnetometer, Coordinates
 
 
@@ -13,27 +13,27 @@ sensors: dict[str, Magnetometer] = {
     "Hefei": Magnetometer("Hefei", 12.0, Coordinates(31.8429, 117.2526, 37.0, 90.0, 0.0)),
     "Lewisburg": Magnetometer("Lewisburg", 54.5, Coordinates(40.9557, -76.8825, 634.0, 0.0, 90.0)),
     "Mainz": Magnetometer("Mainz", 6.8, Coordinates(49.9915, 8.2354, 89.0, 0.0, -90.0))
-    
+
 }
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
         print("Invalid arguments!")
         sys.exit(1)
-    
+
     path = f"./data/{sys.argv[1]}.zip"
-    
+
     print(sensors)
-    
+
     magnetometers: list[list[Signal]] = []
-    
-    with zipfile.ZipFile(path) as zip:
-        for name in zip.namelist():
+
+    with zipfile.ZipFile(path) as file:
+        for name in file.namelist():
             if zipfile.Path(path, name).is_file():
                 magnetometers.append([])
-                with zip.open(name) as file:
+                with file.open(name) as file:
                     for line in file:
-                        time, value = list(map(lambda x: float(x), line.decode().strip().split(" ")))
+                        time, value = list(
+                            map(lambda x: float(x), line.decode().strip().split(" ")))
                         signal = Signal(time, value)
                         magnetometers[len(magnetometers) - 1].append(signal)
-    # print(magnetometers)
